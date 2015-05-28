@@ -69,11 +69,11 @@ describe("Board", function() {
 
 	describe("#createBoardFromPosition", function() {
 		it("should put a white men to (0,1) position", function() {
-			var position = "O3/4/4/4/4/4/4/4";
+			var position = "K3/4/4/4/4/4/4/4";
 			var board = Board.createBoardFromPosition(position, 8);
 
 			var figure = board.getCell(0,1);
-			expect(figure).to.instanceOf(Men);
+			expect(board.isFigureInCell(0,1)).to.be.true;
 			expect(figure.getColor()).to.be.eql(Men.WHITE);
 		});
 	});

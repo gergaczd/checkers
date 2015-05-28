@@ -6,8 +6,8 @@ var Men  = function(color) {
 	this._color = color;
 };
 
-Men.WHITE = "white";
-Men.BLACK = "black";
+Men.WHITE = "#FFFFFF";
+Men.BLACK = "#000000";
 
 Men.prototype = {
 	getColor: function() {

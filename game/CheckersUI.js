@@ -54,16 +54,64 @@ CheckersUI.prototype = {
 			for(var column = 0; column < this._fieldInARow; column++) {
 				var cell = board.getCell(row, column);
 
-				if(cell != null) {
-					var figure;
+				if(board.isFigureInCell(row, column)) {
 					if(cell.isMen()) {
-						figure = this._paper.circle((column*this._fieldSize) +(this._fieldSize/2),(row*this._fieldSize) +(this._fieldSize/2), (this._fieldSize/2)-5);
+						this._createMen(row, column, cell.getColor());
+					} else {
+						this._createKing(row, column, cell.getColor());
 					}
-
-					figure.attr("fill", cell.getColor());
 				}
 			}
 		}
+	},
+
+	_createMen: function(row, column, color) {
+		var halfFieldSize = this._fieldSize/2;
+
+		var x0 = (column*this._fieldSize) + halfFieldSize,
+			y0 = (row*this._fieldSize) +halfFieldSize,
+			r = halfFieldSize-5;
+
+		var circle = this._paper.circle(x0, y0, r);
+
+		this._decorateCircle(circle, color);
+
+		return circle;
+	},
+
+	_createKing: function(row, column, color) {
+		var halfFieldSize = this._fieldSize/2;
+
+		var x0 = (column*this._fieldSize) + halfFieldSize,
+			y0 = (row*this._fieldSize) +halfFieldSize,
+			r = halfFieldSize-5;
+
+		var set = this._paper.set();
+
+		var circle1 = this._paper.circle(x0,y0,r),
+			circle2 = this._paper.circle(x0,y0,r-5),
+			circle3 = this._paper.circle(x0,y0,r-10);
+
+		this._decorateCircle(circle1, color);
+		this._decorateCircle(circle2, color);
+		this._decorateCircle(circle3, color);
+
+		set.push(circle1, circle2, circle3);
+		return set;
+	},
+
+	_decorateCircle: function(circle, color) {
+		circle.attr("fill", color);
+		circle.attr("stroke-width", 2);
+		circle.attr("stroke", this._changeColor(color));
+	},
+
+	_changeColor: function(color) {
+		if(color == "#FFFFFF" || color == "#FFF") {
+			return "#000000";
+		}
+		return "#FFFFFF";
+
 	}
 };
 

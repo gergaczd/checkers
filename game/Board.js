@@ -2,7 +2,8 @@
  * Created by Dan on 2015.05.25..
  */
 
-var FigureFactory = require("./FigureFactory");
+var FigureFactory = require("./FigureFactory"),
+	Men = require("./Men");
 
 var Board = function(fieldInARow) {
 	this._fieldInARow = fieldInARow;
@@ -77,6 +78,13 @@ Board.prototype = {
 		if(row.length != this._fieldInARow) {
 			throw new Error("Incorrect number of field in row");
 		}
+	},
+
+	isFigureInCell: function(row, column) {
+		if(this._board[row][column] instanceof Men) {
+			return true;
+		}
+		return false;
 	}
 };
 
