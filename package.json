@@ -1,0 +1,30 @@
+{
+  "name": "checkers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha tests --recursive"
+  },
+  "engine": "node 0.10.33",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gergaczd/checkers.git"
+  },
+  "author": "Daniel Gergacz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gergaczd/checkers/issues"
+  },
+  "homepage": "https://github.com/gergaczd/checkers",
+  "dependencies": {
+    "body-parser": "^1.12.4",
+    "browserify-middleware": "^5.0.2",
+    "express": "^4.12.4"
+  },
+  "devDependencies": {
+    "chai": "2.1.0",
+    "mocha": "^2.2.5",
+    "supertest": "^1.0.1"
+  }
+}
