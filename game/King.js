@@ -15,4 +15,8 @@ King.prototype.isMen = function() {
 	return false;
 };
 
+King.prototype._getToken = function() {
+	return "k";
+};
+
 module.exports = King;

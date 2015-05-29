@@ -16,7 +16,26 @@ Men.prototype = {
 
 	isMen: function() {
 		return true;
+	},
+
+	getOutputToken: function() {
+		var token = this._getToken();
+
+		return this._normalizeToken(token);
+	},
+
+	_getToken: function() {
+		return "o";
+	},
+
+	_normalizeToken: function(token) {
+		if(this.getColor() == Men.WHITE) {
+			return token.toUpperCase();
+		} else {
+			return token.toLowerCase();
+		}
 	}
+
 };
 
 module.exports = Men;

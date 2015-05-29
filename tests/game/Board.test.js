@@ -5,7 +5,8 @@
 var expect = require("chai").expect,
 	Board = require("./../../game/Board"),
 	Men = require("./../../game/Men"),
-	King = require("./../../game/King");
+	King = require("./../../game/King"),
+	Position = require("./../../game/Position");
 
 var expectNullCells = function(row, cellIndices) {
 	cellIndices.forEach(function(index) {
@@ -69,12 +70,57 @@ describe("Board", function() {
 
 	describe("#createBoardFromPosition", function() {
 		it("should put a white men to (0,1) position", function() {
+			var inPosition = "K3/4/4/4/4/4/4/4";
+			var board = Board.createBoardFromPosition(inPosition, 8);
+
+			var position = new Position(0,1);
+
+			var figure = board.getCell(position);
+			expect(board.isFigureInCell(position)).to.be.true;
+			expect(figure.getColor()).to.be.eql(Men.WHITE);
+		});
+	});
+
+	describe("#getEmptyCounter", function() {
+		var board;
+
+		beforeEach(function() {
+			board = new Board(8);
+		});
+
+		it("should give half of the emptyFields if emptyFields is even", function() {
+			expect(board.getEmptyCounter(8)).to.eql("4");
+			expect(board.getEmptyCounter(2)).to.eql("1");
+		});
+
+		it("should give half of the emptyFields-1 if emptyFields is odd", function() {
+			expect(board.getEmptyCounter(3)).to.eql("1");
+			expect(board.getEmptyCounter(5)).to.eql("2");
+		});
+
+		it("should give empty string if emptyFields are 0", function() {
+			expect(board.getEmptyCounter(0)).to.eql("");
+		});
+	});
+
+	describe("#getRow", function() {
+		["4", "oooo", "O3", "O2O", "3k", "KKK1"].forEach(function(row) {
+			it("should give back '" + row + "' if '" + row + "' loaded", function() {
+				var position = row + "/4/4/4/4/4/4/4";
+				var board = Board.createBoardFromPosition(position, 8);
+
+				expect(board.getRow(0)).to.eql(row);
+
+			});
+		});
+	});
+
+	describe("#getPosition", function() {
+		it("should give back the loaded position", function() {
 			var position = "K3/4/4/4/4/4/4/4";
 			var board = Board.createBoardFromPosition(position, 8);
 
-			var figure = board.getCell(0,1);
-			expect(board.isFigureInCell(0,1)).to.be.true;
-			expect(figure.getColor()).to.be.eql(Men.WHITE);
+			expect(board.getPosition()).to.be.eql(position);
 		});
 	});
 });

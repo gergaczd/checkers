@@ -10,7 +10,7 @@ var CheckersLogic = function(fieldInARow) {
 
 CheckersLogic.prototype = {
 	initGame: function() {
-		this._ui = new CheckersUI(this._fieldInARow);
+		this._ui = new CheckersUI(this);
 
 		this._ui.createBoard();
 	},
@@ -18,7 +18,27 @@ CheckersLogic.prototype = {
 	loadPosition: function(position) {
 		this._board = Board.createBoardFromPosition(position, this._fieldInARow);
 
-		this._ui.drawPosition(this._board);
+		if(this.hasUI()) {
+			this._ui.drawPosition(this._board);
+		}
+	},
+
+	getPosition: function() {
+		return this._board.getPosition();
+	},
+
+	hasUI: function() {
+		return this._ui != null;
+	},
+
+	getFieldInARow: function() {
+		return this._fieldInARow;
+	},
+
+	moveFigure: function(fromPosition, toPosition) {
+		var figure = this._board.getCell(fromPosition);
+		this._board.setCell(toPosition, figure);
+		this._board.clearCell(fromPosition);
 	}
 };
 

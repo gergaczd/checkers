@@ -2,17 +2,25 @@
  * Created by Dan on 2015.05.25..
  */
 
-var CheckersUI = function(fieldInARow) {
-	this._fieldInARow = fieldInARow || 8;
-	this._fieldSize = 80;
+var BoardUI = require("./BoardUI"),
+	Position = require("./Position");
+
+var CheckersUI = function(logic) {
+	this._logic = logic;
+	this._fieldInARow = this._logic.getFieldInARow();
 	this._boardPadding = 20;
+
+	this._handleDragFinished = CheckersUI.prototype._handleDragFinished.bind(this);
 };
 
 CheckersUI.prototype = {
 	createBoard: function() {
-		this._paper = this._createPaper();
+		this.paper = this._createPaper();
 
 		this._createBoardOnPaper();
+
+		this._attachEvents();
+
 	},
 
 	_createPaper: function() {
@@ -22,96 +30,49 @@ CheckersUI.prototype = {
 	},
 
 	_getBoardSize: function() {
-		return this._fieldInARow*this._fieldSize;
+		return this._fieldInARow * BoardUI.FIELD_SIZE;
 	},
 
 	_createBoardOnPaper: function() {
-		this._board = [];
+		this._board = new BoardUI(this._fieldInARow, this.paper);
+
 		for(var i = 0; i < this._fieldInARow; i++) {
-			this._board[i] = [];
 			for(var j = 0; j < this._fieldInARow; j++) {
-				this._board[i][j] = this._createField(i,j);
+				var position = new Position(i,j);
+				this._board.addCellToPosition(position);
 			}
 		}
 	},
 
-	_createField: function(row, column) {
-		var field = this._paper.rect(column * this._fieldSize, row * this._fieldSize, this._fieldSize, this._fieldSize);
-		this._setColorForField(field, row, column);
-		return field;
+	_attachEvents: function() {
+		eve.on("drag/figure/finished", this._handleDragFinished);
 	},
 
-	_setColorForField: function(field, row, column) {
-		if((row+column) % 2 == 0) {
-			field.attr("fill", "#CCCCCC");
+	_handleDragFinished: function(figure) {
+		var coordinate = figure.getFigureCoordinate();
+		var element = this.paper.getElementByPoint(coordinate.x, coordinate.y);
+
+		if(element !== null) {
+			var position = this._board.getFieldPositionByCoordinate(coordinate);
+
+			this._logic.moveFigure(figure.position, position);
+			this._board.moveFigure(figure.position, position);
 		} else {
-			field.attr("fill", "#555555");
+			figure.revertToOrigin();
 		}
 	},
 
-	drawPosition: function(board) {
+	drawPosition: function(logicBoard) {
 		for(var row = 0; row < this._fieldInARow; row++) {
 			for(var column = 0; column < this._fieldInARow; column++) {
-				var cell = board.getCell(row, column);
+				var position = new Position(row, column);
+				var cell = logicBoard.getCell(position);
 
-				if(board.isFigureInCell(row, column)) {
-					if(cell.isMen()) {
-						this._createMen(row, column, cell.getColor());
-					} else {
-						this._createKing(row, column, cell.getColor());
-					}
+				if(logicBoard.isFigureInCell(position)) {
+					this._board.addFigureToPosition(position, cell);
 				}
 			}
 		}
-	},
-
-	_createMen: function(row, column, color) {
-		var halfFieldSize = this._fieldSize/2;
-
-		var x0 = (column*this._fieldSize) + halfFieldSize,
-			y0 = (row*this._fieldSize) +halfFieldSize,
-			r = halfFieldSize-5;
-
-		var circle = this._paper.circle(x0, y0, r);
-
-		this._decorateCircle(circle, color);
-
-		return circle;
-	},
-
-	_createKing: function(row, column, color) {
-		var halfFieldSize = this._fieldSize/2;
-
-		var x0 = (column*this._fieldSize) + halfFieldSize,
-			y0 = (row*this._fieldSize) +halfFieldSize,
-			r = halfFieldSize-5;
-
-		var set = this._paper.set();
-
-		var circle1 = this._paper.circle(x0,y0,r),
-			circle2 = this._paper.circle(x0,y0,r-5),
-			circle3 = this._paper.circle(x0,y0,r-10);
-
-		this._decorateCircle(circle1, color);
-		this._decorateCircle(circle2, color);
-		this._decorateCircle(circle3, color);
-
-		set.push(circle1, circle2, circle3);
-		return set;
-	},
-
-	_decorateCircle: function(circle, color) {
-		circle.attr("fill", color);
-		circle.attr("stroke-width", 2);
-		circle.attr("stroke", this._changeColor(color));
-	},
-
-	_changeColor: function(color) {
-		if(color == "#FFFFFF" || color == "#FFF") {
-			return "#000000";
-		}
-		return "#FFFFFF";
-
 	}
 };
 

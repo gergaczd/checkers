@@ -19,6 +19,19 @@ Board.prototype = {
 		}, this);
 	},
 
+	getPosition: function() {
+		var position = "";
+		this._board.forEach(function(row, rowIndex) {
+			position += this.getRow(rowIndex);
+
+			if(rowIndex !== this._fieldInARow-1) {
+				position += "/";
+			}
+		}, this);
+
+		return position;
+	},
+
 	_addRowToBoard: function(row, rowIndex) {
 		if(!(this._board instanceof  Array)) {
 			this._board = [];
@@ -43,6 +56,38 @@ Board.prototype = {
 		return row;
 	},
 
+	getRow: function(rowIndex) {
+		var outputRow = "";
+		var emptyContinually = 0;
+		this._board[rowIndex].forEach(function(cell) {
+			if(cell == null) {
+				emptyContinually++;
+			} else {
+				outputRow += this.getEmptyCounter(emptyContinually);
+				outputRow += cell.getOutputToken();
+				emptyContinually = 0;
+			}
+		}, this);
+
+		outputRow += this.getEmptyCounter(emptyContinually);
+
+		return outputRow;
+	},
+
+	getEmptyCounter: function(emptyContinually) {
+		if(emptyContinually !== 0) {
+			if(this._isEven(emptyContinually)) {
+				emptyContinually = emptyContinually/2;
+			} else {
+				emptyContinually = (emptyContinually-1)/2;
+			}
+		}
+
+		if(emptyContinually === 0) return "";
+
+		return emptyContinually.toString();
+ 	},
+
 	_isNumberToken: function(token) {
 		return !isNaN(parseInt(token,10));
 	},
@@ -50,13 +95,17 @@ Board.prototype = {
 	_crateFigureWithSurroundedEmptyField: function(cell, rowIndex) {
 		var figure = FigureFactory.createFigureFromId(cell);
 		var cells = [];
-		if(rowIndex % 2 == 0) {
+		if(this._isEven(rowIndex)) {
 			cells = [null, figure];
 		} else {
 			cells = [figure, null];
 		}
 
 		return cells;
+	},
+
+	_isEven: function(number) {
+		return number % 2 == 0;
 	},
 
 	_createDoubleEmptyCells: function(cellCount) {
@@ -70,8 +119,8 @@ Board.prototype = {
 		return cells;
 	},
 
-	getCell: function(row, column) {
-		return this._board[row][column];
+	getCell: function(position) {
+		return this._board[position.getRow()][position.getColumn()];
 	},
 
 	_validateRowLength: function(row) {
@@ -80,11 +129,19 @@ Board.prototype = {
 		}
 	},
 
-	isFigureInCell: function(row, column) {
-		if(this._board[row][column] instanceof Men) {
+	isFigureInCell: function(position) {
+		if(this._board[position.getRow()][position.getColumn()] instanceof Men) {
 			return true;
 		}
 		return false;
+	},
+
+	clearCell: function(position) {
+		this._board[position.getRow()][position.getColumn()] = null;
+	},
+
+	setCell: function(position, value) {
+		this._board[position.getRow()][position.getColumn()] = value;
 	}
 };
 
