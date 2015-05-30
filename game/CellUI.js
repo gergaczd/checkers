@@ -31,8 +31,13 @@ CellUI.prototype = {
 		return this._field.isPointInside(coordinate.x, coordinate.y);
 	},
 
-	removeFigure: function() {
+	clearFigure: function() {
 		this.setFigure(null);
+	},
+
+	removeFigure: function() {
+		this.getFigure().removeFigure();
+		this.clearFigure();
 	}
 };
 

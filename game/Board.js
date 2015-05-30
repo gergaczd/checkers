@@ -7,6 +7,7 @@ var FigureFactory = require("./FigureFactory"),
 
 var Board = function(fieldInARow) {
 	this._fieldInARow = fieldInARow;
+	this._isPromoted = false;
 };
 
 Board.prototype = {
@@ -47,7 +48,7 @@ Board.prototype = {
 			if(this._isNumberToken(cell)) {
 				row = row.concat(this._createDoubleEmptyCells(cell));
 			} else {
-				row = row.concat(this._crateFigureWithSurroundedEmptyField(cell, rowIndex));
+				row = row.concat(this._createFigureWithSurroundedEmptyField(cell, rowIndex));
 			}
 		}, this);
 
@@ -92,7 +93,7 @@ Board.prototype = {
 		return !isNaN(parseInt(token,10));
 	},
 
-	_crateFigureWithSurroundedEmptyField: function(cell, rowIndex) {
+	_createFigureWithSurroundedEmptyField: function(cell, rowIndex) {
 		var figure = FigureFactory.createFigureFromId(cell);
 		var cells = [];
 		if(this._isEven(rowIndex)) {
@@ -130,18 +131,47 @@ Board.prototype = {
 	},
 
 	isFigureInCell: function(position) {
-		if(this._board[position.getRow()][position.getColumn()] instanceof Men) {
-			return true;
-		}
-		return false;
-	},
-
-	clearCell: function(position) {
-		this._board[position.getRow()][position.getColumn()] = null;
+		return this.getCell(position) instanceof Men;
 	},
 
 	setCell: function(position, value) {
 		this._board[position.getRow()][position.getColumn()] = value;
+	},
+
+	moveToCell: function(position, figure) {
+		if(this._isPromoting(position, figure)) {
+			figure = FigureFactory.createKingFromMen(figure);
+			this._isPromoted = true;
+		}
+		this.setCell(position, figure);
+	},
+
+	_isPromoting: function(position, value) {
+		if(value instanceof  Men) {
+			return value.isPromote(position, this._fieldInARow);
+		}
+
+		return false;
+	},
+
+	isPromoted: function() {
+		var isPromoted = this._isPromoted;
+		this._isPromoted = false;
+		return isPromoted;
+	},
+
+	clearCell: function(position) {
+		this.setCell(position, null);
+	},
+
+	isEmptyCell: function(position) {
+		return this.getCell(position) === null;
+	},
+
+	isSameColoredOnPosition: function(position, figure) {
+		var onCellFigure = this.getCell(position);
+
+		return onCellFigure.isSameColoredFigure(figure);
 	}
 };
 

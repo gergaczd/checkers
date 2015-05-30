@@ -34,8 +34,37 @@ Men.prototype = {
 		} else {
 			return token.toLowerCase();
 		}
-	}
+	},
 
+	isWhite: function() {
+		return this._color === Men.WHITE;
+	},
+
+	isGoodDirection: function(fromPosition, toPosition) {
+		if(this.isWhite()) {
+			if(fromPosition.isUpMove(toPosition)) {
+				return true;
+			}
+		}else {
+			if(!fromPosition.isUpMove(toPosition)) {
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	isSameColoredFigure: function(figure) {
+		return this.getColor() === figure.getColor();
+	},
+
+	isPromote: function(position, rowCount) {
+		if(this.isWhite()) {
+			return position.getRow() === 0;
+		} else {
+			return position.getRow() === rowCount-1;
+		}
+	}
 };
 
 module.exports = Men;

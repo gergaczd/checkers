@@ -6,7 +6,10 @@ var CheckersUI = require("./CheckersUI"),
 
 var CheckersLogic = function(fieldInARow) {
 	this._fieldInARow = fieldInARow || 8;
+
+	this._removablePositions = [];
 };
+
 
 CheckersLogic.prototype = {
 	initGame: function() {
@@ -37,8 +40,88 @@ CheckersLogic.prototype = {
 
 	moveFigure: function(fromPosition, toPosition) {
 		var figure = this._board.getCell(fromPosition);
-		this._board.setCell(toPosition, figure);
+		this._board.moveToCell(toPosition, figure);
 		this._board.clearCell(fromPosition);
+
+		return this._board.isPromoted();
+	},
+
+	isValidMove: function(fromPosition, toPosition) {
+		if(!this._isValidCells(fromPosition, toPosition)) {
+			return false;
+		}
+
+		if(!this._isGoodDirection(fromPosition, toPosition)) {
+			return false;
+		}
+
+		return this._isValidBetweenFields(fromPosition, toPosition);
+	},
+
+	_isValidCells: function(fromPosition, toPosition) {
+		if(!fromPosition.isDiagonal(toPosition)) return false;
+		if(!fromPosition.isInDiagonalDistanceLimit(toPosition)) return false;
+
+		return !this._board.isFigureInCell(toPosition);
+	},
+
+	_isGoodDirection: function(fromPosition, toPosition) {
+		var figure = this._board.getCell(fromPosition);
+
+		return figure.isGoodDirection(fromPosition, toPosition);
+	},
+
+	_isValidBetweenFields: function(fromPosition, toPosition) {
+		var distance = fromPosition.getDiagonalDistance(toPosition);
+
+		if(distance === 2) {
+			var positionsBetween = fromPosition.getPositionsDuringDiagonalJump(toPosition);
+			if(this.isEmptyPositions(positionsBetween)) {
+				return false;
+			}
+
+			if(this.isOpponentOnPositions(positionsBetween, fromPosition)) {
+				this._addToRemovableCells(positionsBetween);
+			}
+		}
+
+		return true;
+	},
+
+	isEmptyPositions: function(positions) {
+		var isEmpty = true;
+		positions.forEach(function(position) {
+			isEmpty = isEmpty && this._board.isEmptyCell(position);
+		}, this);
+
+		return isEmpty;
+	},
+
+	isOpponentOnPositions: function(positions, fromPosition) {
+		var isOpponent = false,
+			figure = this._board.getCell(fromPosition);
+
+		positions.forEach(function(position) {
+			isOpponent = isOpponent || !this._board.isSameColoredOnPosition(position, figure);
+		}, this);
+
+		return isOpponent;
+	},
+
+	_addToRemovableCells: function(positions) {
+		this._removablePositions = this._removablePositions.concat(positions);
+	},
+
+	executeRemovable: function() {
+		this._removablePositions.forEach(function(position) {
+			this._board.clearCell(position);
+		}, this);
+
+		this._removablePositions = [];
+	},
+
+	getRemovablePositions: function() {
+		return this._removablePositions;
 	}
 };
 

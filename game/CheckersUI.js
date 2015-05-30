@@ -55,8 +55,17 @@ CheckersUI.prototype = {
 		if(element !== null) {
 			var position = this._board.getFieldPositionByCoordinate(coordinate);
 
-			this._logic.moveFigure(figure.position, position);
-			this._board.moveFigure(figure.position, position);
+			if(this._logic.isValidMove(figure.position, position)) {
+				var isPromoted = this._logic.moveFigure(figure.position, position);
+				this._board.moveFigure(figure.position, position, isPromoted);
+
+				var removablePositions = this._logic.getRemovablePositions();
+				this._logic.executeRemovable();
+				this._board.removePositions(removablePositions);
+
+			} else {
+				figure.revertToOrigin();
+			}
 		} else {
 			figure.revertToOrigin();
 		}

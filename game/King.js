@@ -19,4 +19,13 @@ King.prototype._getToken = function() {
 	return "k";
 };
 
+King.prototype.isGoodDirection = function(fromPosition, toPosition) {
+	return true;
+};
+
+King.prototype.isPromote = function(position, rowCount) {
+	return false;
+};
+
+
 module.exports = King;

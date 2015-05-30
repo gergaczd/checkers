@@ -19,6 +19,10 @@ var FigureFactory = {
 
 	isValidFigureId: function(figureId) {
 		return this._figureTypes.indexOf(figureId) > -1;
+	},
+
+	createKingFromMen: function(men) {
+		return new King(men.getColor());
 	}
 };
 

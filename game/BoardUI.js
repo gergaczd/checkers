@@ -73,17 +73,35 @@ BoardUI.prototype = {
 		return position;
 	},
 
-	moveFigure: function(fromPosition, toPosition) {
-		var fromCell = this._board[fromPosition.getRow()][fromPosition.getColumn()];
-		var toCell = this._board[toPosition.getRow()][toPosition.getColumn()];
+	getCell: function(position) {
+		return this._board[position.getRow()][position.getColumn()];
+	},
+
+	moveFigure: function(fromPosition, toPosition, isPromoted) {
+		var fromCell = this.getCell(fromPosition);
+		var toCell = this.getCell(toPosition);
 
 		var figure = fromCell.getFigure();
 
-		fromCell.removeFigure();
+		fromCell.clearFigure();
 		toCell.setFigure(figure);
-		figure.refreshPosition(toPosition);
-	}
 
+		if(isPromoted) {
+			figure.changeToKing();
+		}
+		figure.refreshPosition(toPosition);
+	},
+
+	removePositions: function(positions) {
+		positions.forEach(function(position) {
+			this.removeFigureFromPosition(position);
+		}, this);
+	},
+
+	removeFigureFromPosition: function(position) {
+		var cell = this.getCell(position);
+		cell.removeFigure();
+	}
 };
 
 module.exports = BoardUI;
