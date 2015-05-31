@@ -4,12 +4,13 @@
 var CheckersLogic = require("./CheckersLogic");
 var checkers = new CheckersLogic(8);
 
-checkers.initGame();
-//checkers.loadPosition("kooo/oooo/4/4/4/4/OOOO/OOOK");
-checkers.loadPosition("o3/4/4/K3/4/4/4/4");
+var BASE_POSITION = "oooo/oooo/4/4/4/4/OOOO/OOOO";
 
-eve.on("new/game", function() {
-	checkers.loadPosition("kooo/oooo/4/4/4/4/OOOO/OOOK");
+checkers.initGame();
+checkers.loadPosition(BASE_POSITION);
+
+eve.on("game/new", function() {
+	checkers.loadPosition(BASE_POSITION);
 });
 
 module.exports = checkers;

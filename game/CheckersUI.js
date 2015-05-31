@@ -4,15 +4,18 @@
 
 var BoardUI = require("./BoardUI"),
 	ColorIndicatorUI = require("./ColorIndicatorUI"),
+	GameControlUI = require("./GameControlUI"),
 	Color = require("./Color"),
 	Position = require("./Position");
 
 var CheckersUI = function(logic) {
 	this._logic = logic;
 	this._fieldInARow = this._logic.getFieldInARow();
-	this._boardPadding = 20;
+	this._topPadding = 20;
+	this._leftPadding = 20;
 
 	this._handleDragFinished = CheckersUI.prototype._handleDragFinished.bind(this);
+	this._handleRetire = CheckersUI.prototype._handleRetire.bind(this);
 };
 
 CheckersUI.prototype = {
@@ -24,11 +27,12 @@ CheckersUI.prototype = {
 		this._attachEvents();
 
 		this._createColorIndicator();
+		this._createGameControl();
 	},
 
 	_createPaper: function() {
 		var boardSize = this._getBoardSize();
-		return Raphael(this._boardPadding, this._boardPadding,
+		return Raphael(this._leftPadding, this._topPadding,
 			boardSize, boardSize);
 	},
 
@@ -46,11 +50,16 @@ CheckersUI.prototype = {
 
 	_attachEvents: function() {
 		eve.on("drag/figure/finished", this._handleDragFinished);
+		eve.on("game/retire", this._handleRetire);
 	},
 
 	_createColorIndicator: function() {
-		var paddingLeft = this._getBoardSize() + 2*this._boardPadding;
-		this._colorIndicator = new ColorIndicatorUI(paddingLeft, this._boardPadding, this._getBoardSize());
+		var paddingLeft = this._getBoardSize() + this._topPadding + this._leftPadding;
+		this._colorIndicator = new ColorIndicatorUI(paddingLeft, this._topPadding, this._getBoardSize());
+	},
+
+	_createGameControl: function() {
+		this._gameControl = new GameControlUI(this._topPadding,this._getBoardSize());
 	},
 
 	_handleDragFinished: function(figure) {
@@ -60,6 +69,11 @@ CheckersUI.prototype = {
 		if(position == null || !this._logic.moveFigure(figure.position, position)) {
 			figure.revertToOrigin();
 		}
+	},
+
+	_handleRetire: function() {
+		var message = "Game finished! You gave up!\nClick here to start a new game";
+		this._popupMessage(message);
 	},
 
 	drawPosition: function(logicBoard, nextColor) {
@@ -72,12 +86,12 @@ CheckersUI.prototype = {
 	},
 
 	finished: function(lostColor) {
-		var message = "Game finished! " + Color.getName(lostColor) + " lost the game\nClick to start new game!";
+		var message = "Game finished! " + Color.getName(lostColor) + " lost the game\nClick here to start a new game!";
 
 		this._popupMessage(message);
 	},
 
-	_popupMessage: function(message, callback) {
+	_popupMessage: function(message) {
 		this._clearPopup();
 		var background = this.paper.rect(0,0, this._getBoardSize(), this._getBoardSize());
 
@@ -98,7 +112,7 @@ CheckersUI.prototype = {
 		var self = this;
 		this._popup.click(function() {
 			self._clearPopup();
-			eve("new/game");
+			eve("game/new");
 		});
 	},
 

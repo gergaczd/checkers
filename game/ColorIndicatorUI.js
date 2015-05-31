@@ -5,10 +5,10 @@ var Coordinate = require("./Coordinate"),
 	Color = require("./Color");
 
 var ColorIndicatorUI = function(paddingLeft, paddingTop, boardSize) {
-	this._paper = Raphael(paddingLeft, paddingTop, 50, boardSize);
-
 	this._height = boardSize;
 	this._width = 50;
+
+	this._paper = Raphael(paddingLeft, paddingTop, this._width, this._height);
 
 	this._createColorCircles();
 };

@@ -148,7 +148,7 @@ Board.prototype = {
 	},
 
 	_isPromoting: function(position, figure) {
-		if(figure instanceof  Men) {
+		if(figure instanceof Men) {
 			return figure.isPromote(position, this._fieldInARow);
 		}
 
@@ -204,11 +204,9 @@ Board.prototype = {
 		if(!this._isSameColoredInCell(cell, color)) return false;
 
 		var destinations = cell.getCaptureDestinations(position, this._fieldInARow);
-		var canCapture = this._takeWhileOnPositions(destinations, function(destination) {
+		return this._takeWhileOnPositions(destinations, function(destination) {
 			return this._canCapture(position, destination);
 		});
-
-		return canCapture;
 	},
 
 	_isSameColoredInCell: function(cell, color) {
