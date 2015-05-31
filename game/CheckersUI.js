@@ -16,6 +16,10 @@ var CheckersUI = function(logic) {
 
 	this._handleDragFinished = CheckersUI.prototype._handleDragFinished.bind(this);
 	this._handleRetire = CheckersUI.prototype._handleRetire.bind(this);
+	this._handleDisconnect = CheckersUI.prototype._handleDisconnect.bind(this);
+	this._newGame = CheckersUI.prototype._newGame.bind(this);
+	this._connectAgain = CheckersUI.prototype._connectAgain.bind(this);
+	this._startGame = CheckersUI.prototype._startGame.bind(this);
 };
 
 CheckersUI.prototype = {
@@ -51,6 +55,8 @@ CheckersUI.prototype = {
 	_attachEvents: function() {
 		eve.on("drag/figure/finished", this._handleDragFinished);
 		eve.on("game/retire", this._handleRetire);
+		eve.on("game-disconnected", this._handleDisconnect);
+		eve.on("start-game", this._startGame);
 	},
 
 	_createColorIndicator: function() {
@@ -66,13 +72,25 @@ CheckersUI.prototype = {
 		var coordinate = figure.getFigureCoordinate();
 		var position = this._board.getFieldPositionByCoordinate(coordinate);
 
-		if(position == null || !this._logic.moveFigure(figure.position, position)) {
+		if(position != null && this._logic.moveFigure(figure.position, position)) {
+			this._notifyServer();
+		} else {
 			figure.revertToOrigin();
 		}
 	},
 
 	_handleRetire: function() {
 		var message = "Game finished! You gave up!\nClick here to start a new game";
+		this._popupMessage(message, this._newGame);
+	},
+
+	_handleDisconnect: function() {
+		var message = "Opponent is disconnected!\nClick to play new game";
+		this._popupMessage(message, this._connectAgain);
+	},
+
+	_startGame: function() {
+		var message = "Game started!\nClick to begin!";
 		this._popupMessage(message);
 	},
 
@@ -87,11 +105,19 @@ CheckersUI.prototype = {
 
 	finished: function(lostColor) {
 		var message = "Game finished! " + Color.getName(lostColor) + " lost the game\nClick here to start a new game!";
-
-		this._popupMessage(message);
+		this._popupMessage(message, this._newGame);
 	},
 
-	_popupMessage: function(message) {
+	_newGame: function() {
+		eve("game/new");
+	},
+
+	_connectAgain: function() {
+		this._newGame();
+		eve("player-connect");
+	},
+
+	_popupMessage: function(message, callback) {
 		this._clearPopup();
 		var background = this.paper.rect(0,0, this._getBoardSize(), this._getBoardSize());
 
@@ -112,7 +138,7 @@ CheckersUI.prototype = {
 		var self = this;
 		this._popup.click(function() {
 			self._clearPopup();
-			eve("game/new");
+			callback && callback();
 		});
 	},
 
@@ -120,6 +146,13 @@ CheckersUI.prototype = {
 		if(this._popup) {
 			this._popup.remove();
 		}
+	},
+
+	_notifyServer: function() {
+		eve("player-moved", null, {
+			position: this._logic.getPosition(),
+			nextColor: this._logic.getNextColor()
+		});
 	},
 
 	_forEach: function(func) {
