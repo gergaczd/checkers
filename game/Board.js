@@ -169,26 +169,44 @@ Board.prototype = {
 		return onCellFigure.isSameColoredFigure(figure);
 	},
 
-	hasAnyCaptureWithColor: function(color) {
-		return this._takeWhile(function(cell, position) {
-			return this._hasCaptureFromCell(cell, position, color);
+	hasAnyMoveWithColor: function(color) {
+		return this._takeWhileOnBoard(function(cell, position) {
+			return this._hasAnyMoveFromCellWithColor(cell, position, color);
 		});
 	},
 
-	_hasCaptureFromCell: function(cell, position, color) {
-		var canCapture = false;
-
-		if(!this._isSameColoredInCell(cell, color)) {
-			return false;
-		}
+	_hasAnyMoveFromCellWithColor: function(cell, position, color) {
+		if(!this._isSameColoredInCell(cell, color)) return false;
 
 		var destinations = cell.getCaptureDestinations(position, this._fieldInARow);
+		var hasJumpMove = this._takeWhileOnPositions(destinations, function(destination) {
+			return this._canJump(position, destination);
+		});
 
-		destinations.forEach(function(destination) {
-			if(!canCapture) {
-				canCapture = this._canCapture(position, destination);
-			}
-		}, this);
+		if(!hasJumpMove) {
+			destinations = cell.getMoveDestinations(position, this._fieldInARow);
+			hasJumpMove = this._takeWhileOnPositions(destinations, function(destination) {
+				return this.isEmptyCell(destination);
+
+			});
+		}
+
+		return hasJumpMove;
+	},
+
+	hasAnyCaptureWithColor: function(color) {
+		return this._takeWhileOnBoard(function(cell, position) {
+			return this._hasCaptureFromCellWithColor(cell, position, color);
+		});
+	},
+
+	_hasCaptureFromCellWithColor: function(cell, position, color) {
+		if(!this._isSameColoredInCell(cell, color)) return false;
+
+		var destinations = cell.getCaptureDestinations(position, this._fieldInARow);
+		var canCapture = this._takeWhileOnPositions(destinations, function(destination) {
+			return this._canCapture(position, destination);
+		});
 
 		return canCapture;
 	},
@@ -198,13 +216,19 @@ Board.prototype = {
 	},
 
 	_canCapture: function(fromPosition, toPosition) {
-		if(!this.isEmptyCell(toPosition)) {
-			return false;
-		}
+		if(!this.isEmptyCell(toPosition)) return false;
 
 		var betweenPosition = fromPosition.getNextPositionTowardAPosition(toPosition);
 
 		return this._isOpponentFiguresOnPositions(fromPosition, betweenPosition);
+	},
+
+	_canJump: function(fromPosition, toPosition) {
+		if(!this.isEmptyCell(toPosition)) return false;
+
+		var betweenPosition = fromPosition.getNextPositionTowardAPosition(toPosition);
+
+		return this.isFigureInCell(betweenPosition);
 	},
 
 	_isOpponentFiguresOnPositions: function(position, opponentPosition) {
@@ -212,7 +236,7 @@ Board.prototype = {
 		return this.isFigureInCell(opponentPosition) && !this.isSameColoredOnPosition(opponentPosition, figure);
 	},
 
-	_takeWhile: function(func) {
+	_takeWhileOnBoard: function(func) {
 		var rowIndex = 0,
 			columnIndex = 0,
 			found = false,
@@ -231,6 +255,17 @@ Board.prototype = {
 			rowIndex++;
 		}
 
+		return found;
+	},
+
+	_takeWhileOnPositions: function(positions, func) {
+		var index = 0, found = false;
+		while(index < positions.length && !found) {
+			var position = positions[index];
+
+			found = func.call(this, position);
+			index++;
+		}
 		return found;
 	}
 };

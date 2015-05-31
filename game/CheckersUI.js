@@ -4,6 +4,7 @@
 
 var BoardUI = require("./BoardUI"),
 	ColorIndicatorUI = require("./ColorIndicatorUI"),
+	Color = require("./Color"),
 	Position = require("./Position");
 
 var CheckersUI = function(logic) {
@@ -38,12 +39,9 @@ CheckersUI.prototype = {
 	_createBoardOnPaper: function() {
 		this._board = new BoardUI(this._fieldInARow, this.paper);
 
-		for(var i = 0; i < this._fieldInARow; i++) {
-			for(var j = 0; j < this._fieldInARow; j++) {
-				var position = new Position(i,j);
-				this._board.addCellToPosition(position);
-			}
-		}
+		this._forEach(function(position) {
+			this._board.addCellToPosition(position);
+		});
 	},
 
 	_attachEvents: function() {
@@ -57,33 +55,66 @@ CheckersUI.prototype = {
 
 	_handleDragFinished: function(figure) {
 		var coordinate = figure.getFigureCoordinate();
-		var element = this.paper.getElementByPoint(coordinate.getX(), coordinate.getY());
+		var position = this._board.getFieldPositionByCoordinate(coordinate);
 
-		if(element !== null) {
-			var position = this._board.getFieldPositionByCoordinate(coordinate);
-
-			if(this._logic.moveFigure(figure.position, position)) {
-				this.drawPosition(this._logic.getBoard(), this._logic.getNextColor());
-			} else {
-				figure.revertToOrigin();
-			}
-		} else {
+		if(position == null || !this._logic.moveFigure(figure.position, position)) {
 			figure.revertToOrigin();
 		}
 	},
 
 	drawPosition: function(logicBoard, nextColor) {
+		this._forEach(function(position) {
+			var cell = logicBoard.getCell(position);
+			this._board.addFigureToPosition(position, cell);
+		});
+
+		this._colorIndicator.setToColor(nextColor);
+	},
+
+	finished: function(lostColor) {
+		var message = "Game finished! " + Color.getName(lostColor) + " lost the game\nClick to start new game!";
+
+		this._popupMessage(message);
+	},
+
+	_popupMessage: function(message, callback) {
+		this._clearPopup();
+		var background = this.paper.rect(0,0, this._getBoardSize(), this._getBoardSize());
+
+		background.attr({
+			fill: Color.WHITE,
+			opacity: 0.6
+		});
+
+		var text = this.paper.text(this._getBoardSize()/2, this._getBoardSize()/2, message);
+
+		text.attr({ "font-size": 26 });
+
+		this._popup = this.paper.set();
+
+		this._popup.push(background, text);
+		this._popup.toFront();
+
+		var self = this;
+		this._popup.click(function() {
+			self._clearPopup();
+			eve("new/game");
+		});
+	},
+
+	_clearPopup: function() {
+		if(this._popup) {
+			this._popup.remove();
+		}
+	},
+
+	_forEach: function(func) {
 		for(var row = 0; row < this._fieldInARow; row++) {
 			for(var column = 0; column < this._fieldInARow; column++) {
 				var position = new Position(row, column);
-
-				var cell = logicBoard.getCell(position);
-				this._board.addFigureToPosition(position, cell);
-
+				func.call(this, position);
 			}
 		}
-
-		this._colorIndicator.setToColor(nextColor);
 	}
 };
 

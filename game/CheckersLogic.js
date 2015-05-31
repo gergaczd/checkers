@@ -12,7 +12,6 @@ var CheckersLogic = function(fieldInARow) {
 	this._captured = false;
 };
 
-
 CheckersLogic.prototype = {
 	initGame: function() {
 		this._ui = new CheckersUI(this);
@@ -24,9 +23,7 @@ CheckersLogic.prototype = {
 		this._nextColor = nextColor || Color.BLACK;
 		this._board = Board.createBoardFromPosition(position, this._fieldInARow);
 
-		if(this.hasUI()) {
-			this._ui.drawPosition(this._board, this._nextColor);
-		}
+		this._drawPosition();
 	},
 
 	getNextColor: function() {
@@ -42,6 +39,20 @@ CheckersLogic.prototype = {
 
 	_changeNextColor: function() {
 		this._nextColor = Color.changeColor(this._nextColor);
+	},
+
+	_checkFinished: function() {
+		if(!this._board.hasAnyMoveWithColor(this._nextColor)) {
+			if(this.hasUI()) {
+				this._ui.finished(this._nextColor);
+			}
+		}
+	},
+
+	_drawPosition: function() {
+		if(this.hasUI()) {
+			this._ui.drawPosition(this._board, this._nextColor);
+		}
 	},
 
 	getPosition: function() {
@@ -65,6 +76,8 @@ CheckersLogic.prototype = {
 			this._board.moveToCell(fromPosition, toPosition);
 			this._executeRemovable();
 			this._calculateNextColor();
+			this._drawPosition();
+			this._checkFinished();
 			return true;
 		}
 		return false;

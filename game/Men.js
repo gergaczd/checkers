@@ -63,11 +63,19 @@ Men.prototype = {
 	},
 
 	getCaptureDestinations: function(position, rowCount) {
+		return this._getMoveDestinationsByDistance(position, rowCount, 2);
+	},
+
+	getMoveDestinations: function(position, rowCount) {
+		return this._getMoveDestinationsByDistance(position, rowCount, 1);
+	},
+
+	_getMoveDestinationsByDistance: function(position, rowCount, distance) {
 		var destinations = [];
 		if(this.isWhite()) {
-			destinations = position.upwardDiagonals(2);
+			destinations = position.upwardDiagonals(distance);
 		} else {
-			destinations = position.downwardDiagonals(2);
+			destinations = position.downwardDiagonals(distance);
 		}
 
 		return this._filterDestinations(destinations, rowCount);

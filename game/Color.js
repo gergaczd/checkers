@@ -20,6 +20,15 @@ var Color = {
 
 	isWhite: function(color) {
 		return color == Color.WHITE;
+	},
+
+	isBlack: function(color) {
+		return color == Color.BLACK;
+	},
+
+	getName: function(color) {
+		if(Color.isWhite(color)) return "white";
+		if(Color.isBlack(color)) return "black";
 	}
 };
 

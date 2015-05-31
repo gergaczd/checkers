@@ -27,13 +27,12 @@ King.prototype.isPromote = function(position, rowCount) {
 	return false;
 };
 
-King.prototype.getCaptureDestinations = function(position, rowCount) {
-	var upward = position.upwardDiagonals(2),
-		downward = position.downwardDiagonals(2);
+King.prototype._getMoveDestinationsByDistance = function(position, rowCount, distance) {
+	var upward = position.upwardDiagonals(distance),
+		downward = position.downwardDiagonals(distance);
 
 	var destinations = upward.concat(downward);
 	return this._filterDestinations(destinations, rowCount);
 };
-
 
 module.exports = King;
