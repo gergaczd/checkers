@@ -3,11 +3,11 @@
  */
 
 var FigureFactory = require("./FigureFactory"),
+	Position = require("./Position"),
 	Men = require("./Men");
 
 var Board = function(fieldInARow) {
 	this._fieldInARow = fieldInARow;
-	this._isPromoted = false;
 };
 
 Board.prototype = {
@@ -138,26 +138,21 @@ Board.prototype = {
 		this._board[position.getRow()][position.getColumn()] = value;
 	},
 
-	moveToCell: function(position, figure) {
-		if(this._isPromoting(position, figure)) {
+	moveToCell: function(fromPosition, toPosition) {
+		var figure = this.getCell(fromPosition);
+		if(this._isPromoting(toPosition, figure)) {
 			figure = FigureFactory.createKingFromMen(figure);
-			this._isPromoted = true;
 		}
-		this.setCell(position, figure);
+		this.setCell(toPosition, figure);
+		this.clearCell(fromPosition);
 	},
 
-	_isPromoting: function(position, value) {
-		if(value instanceof  Men) {
-			return value.isPromote(position, this._fieldInARow);
+	_isPromoting: function(position, figure) {
+		if(figure instanceof  Men) {
+			return figure.isPromote(position, this._fieldInARow);
 		}
 
 		return false;
-	},
-
-	isPromoted: function() {
-		var isPromoted = this._isPromoted;
-		this._isPromoted = false;
-		return isPromoted;
 	},
 
 	clearCell: function(position) {
@@ -172,6 +167,71 @@ Board.prototype = {
 		var onCellFigure = this.getCell(position);
 
 		return onCellFigure.isSameColoredFigure(figure);
+	},
+
+	hasAnyCaptureWithColor: function(color) {
+		return this._takeWhile(function(cell, position) {
+			return this._hasCaptureFromCell(cell, position, color);
+		});
+	},
+
+	_hasCaptureFromCell: function(cell, position, color) {
+		var canCapture = false;
+
+		if(!this._isSameColoredInCell(cell, color)) {
+			return false;
+		}
+
+		var destinations = cell.getCaptureDestinations(position, this._fieldInARow);
+
+		destinations.forEach(function(destination) {
+			if(!canCapture) {
+				canCapture = this._canCapture(position, destination);
+			}
+		}, this);
+
+		return canCapture;
+	},
+
+	_isSameColoredInCell: function(cell, color) {
+		return (cell instanceof Men && cell.isColor(color));
+	},
+
+	_canCapture: function(fromPosition, toPosition) {
+		if(!this.isEmptyCell(toPosition)) {
+			return false;
+		}
+
+		var betweenPosition = fromPosition.getNextPositionTowardAPosition(toPosition);
+
+		return this._isOpponentFiguresOnPositions(fromPosition, betweenPosition);
+	},
+
+	_isOpponentFiguresOnPositions: function(position, opponentPosition) {
+		var figure = this.getCell(position);
+		return this.isFigureInCell(opponentPosition) && !this.isSameColoredOnPosition(opponentPosition, figure);
+	},
+
+	_takeWhile: function(func) {
+		var rowIndex = 0,
+			columnIndex = 0,
+			found = false,
+			row, cell, position;
+
+		while(rowIndex < this._board.length && !found) {
+			row = this._board[rowIndex];
+			columnIndex = 0;
+			while(columnIndex < row.length && !found) {
+				cell = row[columnIndex];
+				position = new Position(rowIndex, columnIndex);
+				found = func.call(this, cell, position);
+
+				columnIndex++;
+			}
+			rowIndex++;
+		}
+
+		return found;
 	}
 };
 

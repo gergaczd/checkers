@@ -27,5 +27,13 @@ King.prototype.isPromote = function(position, rowCount) {
 	return false;
 };
 
+King.prototype.getCaptureDestinations = function(position, rowCount) {
+	var upward = position.upwardDiagonals(2),
+		downward = position.downwardDiagonals(2);
+
+	var destinations = upward.concat(downward);
+	return this._filterDestinations(destinations, rowCount);
+};
+
 
 module.exports = King;

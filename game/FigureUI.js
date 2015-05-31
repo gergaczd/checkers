@@ -2,6 +2,8 @@
  * Created by Dan on 2015.05.29..
  */
 
+var Coordinate = require("./Coordinate");
+
 var FigureUI = function(paper, position, color, fieldSize) {
 	this.paper = paper;
 	this.position = position;
@@ -51,11 +53,6 @@ FigureUI.prototype = {
 		if(this._figure != null) {
 			this._figure.remove();
 		}
-	},
-
-	refreshPosition: function(position) {
-		this.position = position;
-		this.redraw();
 	},
 
 	_createMen: function() {
@@ -152,15 +149,9 @@ FigureUI.prototype = {
 
 	getFigureCoordinate: function() {
 		if(this.isMen()) {
-			return {
-				x: this._figure.attr("cx"),
-				y: this._figure.attr("cy")
-			};
+			return Coordinate.fromCircle(this._figure);
 		} else {
-			return {
-				x: this._figure[0].attr("cx"),
-				y: this._figure[0].attr("cy")
-			};
+			return Coordinate.fromCircleSet(this._figure);
 		}
 	},
 

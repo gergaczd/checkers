@@ -111,5 +111,37 @@ describe("Position", function() {
 					.to.eql(testCase.expected);
 			})
 		});
-	})
+	});
+
+	describe("#upwardDiagonals", function() {
+		it("should give positions at distance 1 by vary the column and decrease the row by 1", function() {
+			var position = new Position(3,3),
+				expected = [new Position(2,2), new Position(2,4)];
+
+			expect(position.upwardDiagonals(1)).to.eql(expected);
+		});
+
+		it("should give positions at distance 2 by vary the column and decrease the row by 2", function() {
+			var position = new Position(0,2),
+				expected = [new Position(-2,0), new Position(-2,4)];
+
+			expect(position.upwardDiagonals(2)).to.eql(expected);
+		})
+	});
+
+	describe("#downwardDiagonals", function() {
+		it("should give positions at distance 1 by vary the column and increase the row by 1", function() {
+			var position = new Position(3,3),
+				expected = [new Position(4,2), new Position(4,4)];
+
+			expect(position.downwardDiagonals(1)).to.eql(expected);
+		});
+
+		it("should give positions at distance 2 by vary the column and increase the row by 2", function() {
+			var position = new Position(0,2),
+				expected = [new Position(2,0), new Position(2,4)];
+
+			expect(position.downwardDiagonals(2)).to.eql(expected);
+		})
+	});
 });

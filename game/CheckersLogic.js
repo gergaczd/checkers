@@ -38,12 +38,18 @@ CheckersLogic.prototype = {
 		return this._fieldInARow;
 	},
 
-	moveFigure: function(fromPosition, toPosition) {
-		var figure = this._board.getCell(fromPosition);
-		this._board.moveToCell(toPosition, figure);
-		this._board.clearCell(fromPosition);
+	getBoard: function() {
+		return this._board;
+	},
 
-		return this._board.isPromoted();
+	moveFigure: function(fromPosition, toPosition) {
+		if(this.isValidMove(fromPosition, toPosition)) {
+			this._board.moveToCell(fromPosition, toPosition);
+			this._executeRemovable();
+
+			return true;
+		}
+		return false;
 	},
 
 	isValidMove: function(fromPosition, toPosition) {
@@ -55,7 +61,21 @@ CheckersLogic.prototype = {
 			return false;
 		}
 
-		return this._isValidBetweenFields(fromPosition, toPosition);
+		if(!this._isValidBetweenFields(fromPosition, toPosition)) {
+			return false;
+		}
+
+		if(this.getRemovablePositions().length == 0) {
+			var figure = this._board.getCell(fromPosition);
+			var hasCapture = this._board.hasAnyCaptureWithColor(figure.getColor());
+
+			if(hasCapture) {
+				this._removablePositions = [];
+				return false;
+			}
+		}
+
+		return true;
 	},
 
 	_isValidCells: function(fromPosition, toPosition) {
@@ -112,7 +132,7 @@ CheckersLogic.prototype = {
 		this._removablePositions = this._removablePositions.concat(positions);
 	},
 
-	executeRemovable: function() {
+	_executeRemovable: function() {
 		this._removablePositions.forEach(function(position) {
 			this._board.clearCell(position);
 		}, this);

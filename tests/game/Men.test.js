@@ -69,5 +69,35 @@ describe("Men", function() {
 
 			expect(men.isPromote(position, 8)).to.be.true;
 		});
-	})
+	});
+
+	describe("#getCaptureDestinations", function() {
+		it("should filter the diagonals according to the given rowCount for a black men", function() {
+			var men = new Men(Men.BLACK),
+				position = new Position(6,6),
+				expected = [];
+
+			expect(position.downwardDiagonals(2).length).to.eql(2);
+			expect(men.getCaptureDestinations(position, 8)).to.eql(expected);
+		});
+
+		it("should filter the diagonals according to the 0 index for a white men", function() {
+			var men = new Men(Men.WHITE),
+				position = new Position(1,1),
+				expected = [];
+
+			expect(position.upwardDiagonals(2).length).to.eql(2);
+			expect(men.getCaptureDestinations(position, 8)).to.eql(expected);
+		});
+
+		it("should give the two upward diagonals in normal case (if not in the boundary fields) for a white men", function() {
+			var men = new Men(Men.WHITE),
+				position = new Position(4,4),
+				expected = [new Position(2,2), new Position(2,6)];
+
+			expect(position.upwardDiagonals(2).length).to.eql(2);
+			expect(men.getCaptureDestinations(position, 8)).to.eql(expected);
+		});
+
+	});
 });

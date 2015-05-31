@@ -20,7 +20,6 @@ Men.prototype = {
 
 	getOutputToken: function() {
 		var token = this._getToken();
-
 		return this._normalizeToken(token);
 	},
 
@@ -29,7 +28,7 @@ Men.prototype = {
 	},
 
 	_normalizeToken: function(token) {
-		if(this.getColor() == Men.WHITE) {
+		if(this.isWhite()) {
 			return token.toUpperCase();
 		} else {
 			return token.toLowerCase();
@@ -42,20 +41,18 @@ Men.prototype = {
 
 	isGoodDirection: function(fromPosition, toPosition) {
 		if(this.isWhite()) {
-			if(fromPosition.isUpMove(toPosition)) {
-				return true;
-			}
+			return fromPosition.isUpMove(toPosition)
 		}else {
-			if(!fromPosition.isUpMove(toPosition)) {
-				return true;
-			}
+			return !fromPosition.isUpMove(toPosition);
 		}
-
-		return false;
 	},
 
 	isSameColoredFigure: function(figure) {
-		return this.getColor() === figure.getColor();
+		return this.isColor(figure.getColor());
+	},
+
+	isColor: function(color) {
+		return this.getColor() == color;
 	},
 
 	isPromote: function(position, rowCount) {
@@ -64,6 +61,23 @@ Men.prototype = {
 		} else {
 			return position.getRow() === rowCount-1;
 		}
+	},
+
+	getCaptureDestinations: function(position, rowCount) {
+		var destinations = [];
+		if(this.isWhite()) {
+			destinations = position.upwardDiagonals(2);
+		} else {
+			destinations = position.downwardDiagonals(2);
+		}
+
+		return this._filterDestinations(destinations, rowCount);
+	},
+
+	_filterDestinations: function(destinations, rowCount) {
+		return destinations.filter(function(position) {
+			return !position.isAnyBiggerThen(rowCount-1) && !position.isAnyLowerThen(0);
+		})
 	}
 };
 

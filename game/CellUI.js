@@ -28,7 +28,7 @@ CellUI.prototype = {
 	},
 
 	isFieldInCoordinate: function(coordinate) {
-		return this._field.isPointInside(coordinate.x, coordinate.y);
+		return this._field.isPointInside(coordinate.getX(), coordinate.getY());
 	},
 
 	clearFigure: function() {
@@ -36,7 +36,10 @@ CellUI.prototype = {
 	},
 
 	removeFigure: function() {
-		this.getFigure().removeFigure();
+		if(this.getFigure() !== null) {
+			this.getFigure().removeFigure();
+		}
+
 		this.clearFigure();
 	}
 };

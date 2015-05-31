@@ -50,19 +50,13 @@ CheckersUI.prototype = {
 
 	_handleDragFinished: function(figure) {
 		var coordinate = figure.getFigureCoordinate();
-		var element = this.paper.getElementByPoint(coordinate.x, coordinate.y);
+		var element = this.paper.getElementByPoint(coordinate.getX(), coordinate.getY());
 
 		if(element !== null) {
 			var position = this._board.getFieldPositionByCoordinate(coordinate);
 
-			if(this._logic.isValidMove(figure.position, position)) {
-				var isPromoted = this._logic.moveFigure(figure.position, position);
-				this._board.moveFigure(figure.position, position, isPromoted);
-
-				var removablePositions = this._logic.getRemovablePositions();
-				this._logic.executeRemovable();
-				this._board.removePositions(removablePositions);
-
+			if(this._logic.moveFigure(figure.position, position)) {
+				this.drawPosition(this._logic.getBoard());
 			} else {
 				figure.revertToOrigin();
 			}
@@ -75,11 +69,10 @@ CheckersUI.prototype = {
 		for(var row = 0; row < this._fieldInARow; row++) {
 			for(var column = 0; column < this._fieldInARow; column++) {
 				var position = new Position(row, column);
-				var cell = logicBoard.getCell(position);
 
-				if(logicBoard.isFigureInCell(position)) {
-					this._board.addFigureToPosition(position, cell);
-				}
+				var cell = logicBoard.getCell(position);
+				this._board.addFigureToPosition(position, cell);
+
 			}
 		}
 	}

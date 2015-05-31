@@ -75,6 +75,16 @@ Position.prototype = {
 		return new Position(row, column);
 	},
 
+	getNextPositionTowardAPosition: function(position) {
+		var normalizedColumnDiff = this._normalizeDifference(this._columnDifference(position)),
+			normalizedRowDiff = this._normalizeDifference(this._rowDifference(position));
+
+		var row = position.getRow() + normalizedRowDiff,
+			column = position.getColumn() + normalizedColumnDiff;
+
+		return new Position(row, column);
+	},
+
 	_isSame: function(position) {
 		return this.getRow() === position.getRow() &&
 			this.getColumn() === position.getColumn();
@@ -102,6 +112,56 @@ Position.prototype = {
 
 	isUpMove: function(position) {
 		return this._rowDifference(position) > 0;
+	},
+
+	upwardDiagonals: function(distance) {
+		var upLeft = this._upLeftDiagonal(distance),
+			upRight = this._upRightDiagonal(distance);
+
+		return [upLeft, upRight];
+	},
+
+	_upLeftDiagonal: function(distance) {
+		var row = this.getRow() - distance,
+			column = this.getColumn() - distance;
+
+		return new Position(row, column);
+	},
+
+	_upRightDiagonal: function(distance) {
+		var row = this.getRow() - distance,
+			column = this.getColumn() + distance;
+
+		return new Position(row, column);
+	},
+
+	downwardDiagonals: function(distance) {
+		var downLeft = this._downLeftDiagonal(distance),
+			downRight = this._downRightDiagonal(distance);
+
+		return [downLeft, downRight];
+	},
+
+	_downLeftDiagonal: function(distance) {
+		var row = this.getRow() + distance,
+			column = this.getColumn() - distance;
+
+		return new Position(row, column);
+	},
+
+	_downRightDiagonal: function(distance) {
+		var row = this.getRow() + distance,
+			column = this.getColumn() + distance;
+
+		return new Position(row, column);
+	},
+
+	isAnyBiggerThen: function(number) {
+		return this.getRow() > number || this.getColumn() > number;
+	},
+
+	isAnyLowerThen: function(number) {
+		return this.getRow() < number || this.getColumn() < number;
 	},
 
 	toString: function() {
