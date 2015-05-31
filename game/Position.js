@@ -48,33 +48,6 @@ Position.prototype = {
 		return this._columnDistance(position);
 	},
 
-	getPositionsDuringDiagonalJump: function(position) {
-		var distance = this.getDiagonalDistance(position);
-		distance--;
-		if(distance < 1) {
-			return [];
-		}
-
-		var positions = [];
-
-		while(distance > 0) {
-			positions.push(this._getPositionAtDistanceTowardGivenPosition(position, distance));
-			distance--;
-		}
-
-		return positions;
-	},
-
-	_getPositionAtDistanceTowardGivenPosition: function(position, distance) {
-		var normalizedColumnDiff = this._normalizeDifference(this._columnDifference(position)),
-			normalizedRowDiff = this._normalizeDifference(this._rowDifference(position));
-
-		var row = position.getRow() + (distance * normalizedRowDiff),
-			column = position.getColumn() + (distance * normalizedColumnDiff);
-
-		return new Position(row, column);
-	},
-
 	getNextPositionTowardAPosition: function(position) {
 		var normalizedColumnDiff = this._normalizeDifference(this._columnDifference(position)),
 			normalizedRowDiff = this._normalizeDifference(this._rowDifference(position));

@@ -6,7 +6,8 @@ var expect = require("chai").expect,
 	Board = require("./../../game/Board"),
 	Men = require("./../../game/Men"),
 	King = require("./../../game/King"),
-	Position = require("./../../game/Position");
+	Position = require("./../../game/Position"),
+	Color = require("./../../game/Color");
 
 var expectNullCells = function(row, cellIndices) {
 	cellIndices.forEach(function(index) {
@@ -38,7 +39,7 @@ describe("Board", function() {
 		it("should create a row with a white Men at index 1 for 'O3' and 0", function() {
 			var row = board.createRow("O3", 0);
 			expect(row[1]).to.instanceOf(Men);
-			expect(row[1].getColor()).to.be.eql(Men.WHITE);
+			expect(row[1].getColor()).to.be.eql(Color.WHITE);
 
 			expectNullCells(row, [0,2,3,4,5,6,7]);
 			expect(row.length).to.eql(8);
@@ -49,7 +50,7 @@ describe("Board", function() {
 
 			[1,3,5,7].forEach(function(index) {
 				expect(row[index]).to.instanceOf(Men);
-				expect(row[index].getColor()).to.be.eql(Men.BLACK);
+				expect(row[index].getColor()).to.be.eql(Color.BLACK);
 			});
 
 			expectNullCells(row, [0,2,4,6]);
@@ -77,7 +78,7 @@ describe("Board", function() {
 
 			var figure = board.getCell(position);
 			expect(board.isFigureInCell(position)).to.be.true;
-			expect(figure.getColor()).to.be.eql(Men.WHITE);
+			expect(figure.getColor()).to.be.eql(Color.WHITE);
 		});
 	});
 

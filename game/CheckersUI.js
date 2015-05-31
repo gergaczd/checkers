@@ -3,6 +3,7 @@
  */
 
 var BoardUI = require("./BoardUI"),
+	ColorIndicatorUI = require("./ColorIndicatorUI"),
 	Position = require("./Position");
 
 var CheckersUI = function(logic) {
@@ -21,6 +22,7 @@ CheckersUI.prototype = {
 
 		this._attachEvents();
 
+		this._createColorIndicator();
 	},
 
 	_createPaper: function() {
@@ -48,6 +50,11 @@ CheckersUI.prototype = {
 		eve.on("drag/figure/finished", this._handleDragFinished);
 	},
 
+	_createColorIndicator: function() {
+		var paddingLeft = this._getBoardSize() + 2*this._boardPadding;
+		this._colorIndicator = new ColorIndicatorUI(paddingLeft, this._boardPadding, this._getBoardSize());
+	},
+
 	_handleDragFinished: function(figure) {
 		var coordinate = figure.getFigureCoordinate();
 		var element = this.paper.getElementByPoint(coordinate.getX(), coordinate.getY());
@@ -56,7 +63,7 @@ CheckersUI.prototype = {
 			var position = this._board.getFieldPositionByCoordinate(coordinate);
 
 			if(this._logic.moveFigure(figure.position, position)) {
-				this.drawPosition(this._logic.getBoard());
+				this.drawPosition(this._logic.getBoard(), this._logic.getNextColor());
 			} else {
 				figure.revertToOrigin();
 			}
@@ -65,7 +72,7 @@ CheckersUI.prototype = {
 		}
 	},
 
-	drawPosition: function(logicBoard) {
+	drawPosition: function(logicBoard, nextColor) {
 		for(var row = 0; row < this._fieldInARow; row++) {
 			for(var column = 0; column < this._fieldInARow; column++) {
 				var position = new Position(row, column);
@@ -75,6 +82,8 @@ CheckersUI.prototype = {
 
 			}
 		}
+
+		this._colorIndicator.setToColor(nextColor);
 	}
 };
 

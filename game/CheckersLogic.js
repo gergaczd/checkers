@@ -2,12 +2,14 @@
  * Created by Dan on 2015.05.25..
  */
 var CheckersUI = require("./CheckersUI"),
+	Color = require("./Color"),
 	Board = require("./Board");
 
 var CheckersLogic = function(fieldInARow) {
 	this._fieldInARow = fieldInARow || 8;
 
-	this._removablePositions = [];
+	this._removablePosition = null;
+	this._captured = false;
 };
 
 
@@ -18,12 +20,28 @@ CheckersLogic.prototype = {
 		this._ui.createBoard();
 	},
 
-	loadPosition: function(position) {
+	loadPosition: function(position, nextColor) {
+		this._nextColor = nextColor || Color.BLACK;
 		this._board = Board.createBoardFromPosition(position, this._fieldInARow);
 
 		if(this.hasUI()) {
-			this._ui.drawPosition(this._board);
+			this._ui.drawPosition(this._board, this._nextColor);
 		}
+	},
+
+	getNextColor: function() {
+		return this._nextColor;
+	},
+
+	_calculateNextColor: function() {
+		if(!this._captured || !this._board.hasAnyCaptureWithColor(this._nextColor)) {
+			this._changeNextColor();
+		}
+		this._captured = false;
+	},
+
+	_changeNextColor: function() {
+		this._nextColor = Color.changeColor(this._nextColor);
 	},
 
 	getPosition: function() {
@@ -46,13 +64,18 @@ CheckersLogic.prototype = {
 		if(this.isValidMove(fromPosition, toPosition)) {
 			this._board.moveToCell(fromPosition, toPosition);
 			this._executeRemovable();
-
+			this._calculateNextColor();
 			return true;
 		}
 		return false;
 	},
 
 	isValidMove: function(fromPosition, toPosition) {
+		this._captured = false;
+		if(!this._isValidColorOnPosition(fromPosition)) {
+			return false;
+		}
+
 		if(!this._isValidCells(fromPosition, toPosition)) {
 			return false;
 		}
@@ -60,22 +83,30 @@ CheckersLogic.prototype = {
 		if(!this._isGoodDirection(fromPosition, toPosition)) {
 			return false;
 		}
-
 		if(!this._isValidBetweenFields(fromPosition, toPosition)) {
 			return false;
 		}
 
-		if(this.getRemovablePositions().length == 0) {
+		if(!this.hasRemovable()) {
 			var figure = this._board.getCell(fromPosition);
 			var hasCapture = this._board.hasAnyCaptureWithColor(figure.getColor());
 
 			if(hasCapture) {
-				this._removablePositions = [];
+				this._removablePosition = null;
 				return false;
 			}
 		}
 
 		return true;
+	},
+
+	_isValidColorOnPosition: function(position) {
+		if(!this._board.isFigureInCell(position)){
+			return false;
+		}
+
+		var figure = this._board.getCell(position);
+		return figure.isColor(this._nextColor);
 	},
 
 	_isValidCells: function(fromPosition, toPosition) {
@@ -95,53 +126,40 @@ CheckersLogic.prototype = {
 		var distance = fromPosition.getDiagonalDistance(toPosition);
 
 		if(distance === 2) {
-			var positionsBetween = fromPosition.getPositionsDuringDiagonalJump(toPosition);
-			if(this.isEmptyPositions(positionsBetween)) {
+			var positionBetween = fromPosition.getNextPositionTowardAPosition(toPosition);
+			if(this._board.isEmptyCell(positionBetween)) {
 				return false;
 			}
 
-			if(this.isOpponentOnPositions(positionsBetween, fromPosition)) {
-				this._addToRemovableCells(positionsBetween);
+			if(this.isOpponentOnPosition(positionBetween, fromPosition)) {
+				this._addToRemovable(positionBetween);
 			}
 		}
 
 		return true;
 	},
 
-	isEmptyPositions: function(positions) {
-		var isEmpty = true;
-		positions.forEach(function(position) {
-			isEmpty = isEmpty && this._board.isEmptyCell(position);
-		}, this);
+	isOpponentOnPosition: function(position, fromPosition) {
+		var figure = this._board.getCell(fromPosition);
 
-		return isEmpty;
+		return !this._board.isSameColoredOnPosition(position, figure);
 	},
 
-	isOpponentOnPositions: function(positions, fromPosition) {
-		var isOpponent = false,
-			figure = this._board.getCell(fromPosition);
-
-		positions.forEach(function(position) {
-			isOpponent = isOpponent || !this._board.isSameColoredOnPosition(position, figure);
-		}, this);
-
-		return isOpponent;
-	},
-
-	_addToRemovableCells: function(positions) {
-		this._removablePositions = this._removablePositions.concat(positions);
+	_addToRemovable: function(position) {
+		this._captured = true;
+		this._removablePosition = position;
 	},
 
 	_executeRemovable: function() {
-		this._removablePositions.forEach(function(position) {
-			this._board.clearCell(position);
-		}, this);
+		if(this.hasRemovable()) {
+			this._board.clearCell(this._removablePosition);
+		}
 
-		this._removablePositions = [];
+		this._removablePosition = null;
 	},
 
-	getRemovablePositions: function() {
-		return this._removablePositions;
+	hasRemovable: function() {
+		return this._removablePosition != null;
 	}
 };
 

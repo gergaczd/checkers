@@ -2,15 +2,16 @@
  * Created by Dan on 2015.05.25..
  */
 var Men = require("./Men"),
-	King = require("./King");
+	King = require("./King"),
+	Color = require("./Color");
 
 var FigureFactory = {
 	createFigureFromId: function(figureId) {
 		switch(figureId) {
-			case "O": return new Men(Men.WHITE);
-			case "o": return new Men(Men.BLACK);
-			case "K": return new King(Men.WHITE);
-			case "k": return new King(Men.BLACK);
+			case "O": return new Men(Color.WHITE);
+			case "o": return new Men(Color.BLACK);
+			case "K": return new King(Color.WHITE);
+			case "k": return new King(Color.BLACK);
 			default: return null;
 		}
 	},

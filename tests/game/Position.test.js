@@ -73,46 +73,6 @@ describe("Position", function() {
 		});
 	});
 
-	describe("#getPositionsDuringDiagonalJump", function() {
-		[
-			{
-				description: "should give empty array if the two given position is not diagonal",
-				position: new Position(2,1),
-				givenPosition: new Position(2,2),
-				expected: []
-			},
-			{
-				description: "should return an empty array if the two given position distance only one (and diagonal)",
-				position: new Position(1,1),
-				givenPosition: new Position(2,2),
-				expected: []
-			},
-			{
-				description: "should return (1,1) if the two given position is (0,0) and (2,2)",
-				position: new Position(0,0),
-				givenPosition: new Position(2,2),
-				expected: [new Position(1,1)]
-			},
-			{
-				description: "should return multiple position if distance is more than 2",
-				position: new Position(0,0),
-				givenPosition: new Position(4,4),
-				expected: [new Position(1,1), new Position(2,2), new Position(3,3)]
-			},
-			{
-				description: "should return multiple position if distance is more than 2",
-				position: new Position(3,3),
-				givenPosition: new Position(5,1),
-				expected: [new Position(4,2)]
-			}
-		].forEach(function(testCase) {
-			it(testCase.description, function() {
-				expect(testCase.position.getPositionsDuringDiagonalJump(testCase.givenPosition))
-					.to.eql(testCase.expected);
-			})
-		});
-	});
-
 	describe("#upwardDiagonals", function() {
 		it("should give positions at distance 1 by vary the column and decrease the row by 1", function() {
 			var position = new Position(3,3),

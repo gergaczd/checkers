@@ -4,6 +4,7 @@
 var expect = require("chai").expect,
 	FigureFactory = require("./../../game/FigureFactory"),
 	Men = require("./../../game/Men"),
+	Color = require("./../../game/Color"),
 	King = require("./../../game/King");
 
 describe("FigureFactory", function() {
@@ -13,25 +14,25 @@ describe("FigureFactory", function() {
 				figureId: "O",
 				figureName: "white Men",
 				expectInstance: Men,
-				expectColor: Men.WHITE
+				expectColor: Color.WHITE
 			},
 			{
 				figureId: "o",
 				figureName: "black Men",
 				expectInstance: Men,
-				expectColor: Men.BLACK
+				expectColor: Color.BLACK
 			},
 			{
 				figureId: "K",
 				figureName: "white King",
 				expectInstance: King,
-				expectColor: Men.WHITE
+				expectColor: Color.WHITE
 			},
 			{
 				figureId: "k",
 				figureName: "black King",
 				expectInstance: King,
-				expectColor: Men.BLACK
+				expectColor: Color.BLACK
 			}
 		].forEach(function(descriptor) {
 			it("should create a " + descriptor.figureName + " for input " + descriptor.figureId, function() {
